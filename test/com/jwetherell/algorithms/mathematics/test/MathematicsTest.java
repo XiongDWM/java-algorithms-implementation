@@ -227,6 +227,18 @@ public class MathematicsTest {
     }
 
     @Test
+    public void manhattanDistance(){
+        int x1=0;
+        int y1=0;
+        int x2=2;
+        int y2=2;
+        double result=Distance.manhattanDistance(x1,y1,x2,y2);
+        double expected=4.0;
+        assertTrue("manhattanDistance error. expected=" + expected + " got=" + result, (result == expected));
+    }
+
+
+    @Test
     public void getPrimeFactorization() {
         int number = 234;
         Map<Long, Long> factorization = Primes.getPrimeFactorization(number);

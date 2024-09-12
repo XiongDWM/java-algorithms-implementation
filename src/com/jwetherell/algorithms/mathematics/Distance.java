@@ -1,5 +1,7 @@
 package com.jwetherell.algorithms.mathematics;
 
+import java.util.List;
+
 public class Distance {
 
     private Distance() { }
@@ -28,4 +30,37 @@ public class Distance {
         double sqrt = Math.sqrt(x + y);
         return sqrt;
     }
+
+    /**
+     * Manhattan distance
+     */
+
+    public static double manhattanDistance(Number x1, Number y1, Number x2, Number y2) {
+        double h=Math.abs(y1.doubleValue()-y2.doubleValue());
+        double w=Math.abs(x1.doubleValue()-x2.doubleValue());
+        return h+w;
+    }
+
+    private static double deg2rad(double deg) {
+        return deg * (Math.PI / 180);
+    }
+
+    /**
+     * Haversine formula
+     * calculates the shortest path between two points on a spherical surface.
+     */
+    public static double haversineDistance(double x1,double y1,double x2,double y2,double radius){
+        double dLat = deg2rad(x2 - x1);  // deg2rad below
+        double dLon = deg2rad(y2 - y1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(deg2rad(x1)) * Math.cos(deg2rad(x2)) *
+                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return radius * c;
+    }
+//
+//    public static double[] KDistance(double[][] p,int k){
+//
+//    }
+
 }
