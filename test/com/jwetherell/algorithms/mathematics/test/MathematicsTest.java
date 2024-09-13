@@ -4,6 +4,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.Test;
 
@@ -237,6 +239,21 @@ public class MathematicsTest {
         assertTrue("manhattanDistance error. expected=" + expected + " got=" + result, (result == expected));
     }
 
+    @Test
+    public void kDistanceTest(){
+        double[] a={1,3};
+        double[] a1={1,4};
+        double[] a2={1,5};
+        double[] a3={1,6};
+        double[] a4={2,6};
+        double[] a5={2,5};
+        double[] a6={2,4};
+        double[] a7={2,3};
+        List<double[]>points= Stream.of(a,a1,a2,a3,a4,a5,a6,a7).collect(Collectors.toList());
+        List<Double>result=Distance.kDistance(points,3);
+        List<Double>expected=Stream.of(2.0, 1.0, 1.0, 2.0, 2.0, 1.0, 1.0, 2.0).collect(Collectors.toList());
+        assertTrue("k-Distance error. expected=" + expected + " got=" + result, (result.containsAll(expected)&&expected.size()==result.size()));
+    }
 
     @Test
     public void getPrimeFactorization() {

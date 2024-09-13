@@ -1,5 +1,7 @@
 package com.jwetherell.algorithms.mathematics;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Distance {
@@ -58,9 +60,25 @@ public class Distance {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return radius * c;
     }
-//
-//    public static double[] KDistance(double[][] p,int k){
-//
-//    }
 
+    /**
+     * k-distance
+     * Receives a list points containing multiple two-dimensional points
+     * (each represented as a double[2] array, x=array[0] and y=array[1]),
+     * and an integer k, which indicates the k-th nearest distance to be found.
+     */
+    public static List<Double> kDistance(List<double[]> points, int k){
+        List<Double> distances = new ArrayList<>();
+        for (double[] point : points) {
+            List<Double> pointDistances = new ArrayList<>();
+            for (double[] other : points) {
+                if (point[0] == other[0] && point[1] == other[1]) continue;
+                pointDistances.add(squaredDistance(point[0],point[1],other[0],other[1]));
+            }
+            Collections.sort(pointDistances);
+            System.out.println(point[0]+","+point[1]+"::"+pointDistances);
+            distances.add(pointDistances.get(k - 1));
+        }
+        return distances;
+    }
 }
