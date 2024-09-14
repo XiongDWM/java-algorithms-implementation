@@ -3,6 +3,7 @@ package com.jwetherell.algorithms.mathematics;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class Distance {
 
@@ -31,6 +32,22 @@ public class Distance {
         double y = Math.pow((y1 - y2), 2);
         double sqrt = Math.sqrt(x + y);
         return sqrt;
+    }
+
+    /**
+     * square distance for two high-dimensional(dimension >2) points
+     *
+     */
+    public static double squaredDistanceHighDimension(List<Double> coords1, List<Double> coords2) {
+        if (coords1.size() != coords2.size()) {
+            throw new IllegalArgumentException("Coordinates must have the same dimension");
+        }
+        double sum = 0.0;
+        for (int i = 0; i < coords1.size(); i++) {
+            double diff = coords1.get(i) - coords2.get(i);
+            sum += diff * diff;
+        }
+        return Math.sqrt(sum);
     }
 
     /**
@@ -67,16 +84,15 @@ public class Distance {
      * (each represented as a double[2] array, x=array[0] and y=array[1]),
      * and an integer k, which indicates the k-th nearest distance to be found.
      */
-    public static List<Double> kDistance(List<double[]> points, int k){
+    public static List<Double> kDistance(List<List<Double>> points, int k){
         List<Double> distances = new ArrayList<>();
-        for (double[] point : points) {
+        for (List<Double> point : points) {
             List<Double> pointDistances = new ArrayList<>();
-            for (double[] other : points) {
-                if (point[0] == other[0] && point[1] == other[1]) continue;
-                pointDistances.add(squaredDistance(point[0],point[1],other[0],other[1]));
+            for (List<Double> other : points) {
+                if (Objects.equals(point,other)) continue;
+                pointDistances.add(squaredDistanceHighDimension(point,other));
             }
             Collections.sort(pointDistances);
-            System.out.println(point[0]+","+point[1]+"::"+pointDistances);
             distances.add(pointDistances.get(k - 1));
         }
         return distances;

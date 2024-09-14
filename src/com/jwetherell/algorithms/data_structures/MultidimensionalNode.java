@@ -2,8 +2,6 @@ package com.jwetherell.algorithms.data_structures;
 
 import java.util.Objects;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Multidimensional node
