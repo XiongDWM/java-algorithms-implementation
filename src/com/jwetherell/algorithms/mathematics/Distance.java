@@ -80,8 +80,8 @@ public class Distance {
 
     /**
      * k-distance
-     * Receives a list points containing multiple two-dimensional points
-     * (each represented as a double[2] array, x=array[0] and y=array[1]),
+     * Receives a list points containing multi-dimensional points
+     * (each represented as a List<Double>, for example x=list[0],y=list[1],z=list[2] if it is a 3d point),
      * and an integer k, which indicates the k-th nearest distance to be found.
      */
     public static List<Double> kDistance(List<List<Double>> points, int k){

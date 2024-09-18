@@ -1,14 +1,21 @@
 package com.jwetherell.algorithms.cluster;
 
+import com.jwetherell.algorithms.data_structures.MultidimensionalNode;
 import com.jwetherell.algorithms.mathematics.ConvexHull;
 import com.jwetherell.algorithms.mathematics.Distance;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * This class implements the DBSCAN (Density-Based Spatial Clustering of Applications with Noise) algorithm.
+ * DBSCAN is a density-based clustering algorithm that groups together points that are closely packed together,
+ * marking points that are in low-density regions as outliers (noise).
+ *
+ * @author dawei xiong
+ */
 public class DBSCAN {
     private final List<DBNode> points;
     private static final int NOISE = -1;
@@ -22,7 +29,7 @@ public class DBSCAN {
         for (DBNode point : points) {
             if (!point.isVisited()) {
                 point.setVisited(true);
-                List<DBNode> neighbors = getNeighbors(point, points, eps);
+                List<DBNode> neighbors = getNeighbors(point, eps);
                 if (neighbors.size() >= minPts) {
                     expandCluster(point, neighbors, clusterId, points, eps, minPts);
                     clusterId++;
@@ -36,7 +43,10 @@ public class DBSCAN {
         return clusters;
     }
 
-    private List<DBNode> getNeighbors(DBNode point, List<DBNode> points, double eps) {
+    /**
+     * @return node point's neighbors
+     */
+    private List<DBNode> getNeighbors(DBNode point, double eps) {
         List<DBNode> neighbors = new ArrayList<>();
         for (DBNode neighbor : points) {
             double distance= Distance.squaredDistanceHighDimension(point.getCoordinates(),neighbor.getCoordinates());
@@ -55,7 +65,7 @@ public class DBSCAN {
             DBNode neighbor = neighbors.get(index);
             if (!neighbor.isVisited()) {
                 neighbor.setVisited(true);
-                List<DBNode> neighborNeighbors = getNeighbors(neighbor, points, eps);
+                List<DBNode> neighborNeighbors = getNeighbors(neighbor, eps);
                 if (neighborNeighbors.size() >= minPts) {
                     neighbors.addAll(neighborNeighbors);
                 }
@@ -71,6 +81,9 @@ public class DBSCAN {
         return new ArrayList<>(points.stream().collect(Collectors.groupingBy(DBNode::getGroupId)).values());
     }
 
+    /**
+     * extract the outlines of the clusters
+     */
     private List<List<DBNode>> extractOutline(List<List<DBNode>> clusters){
         List<List<DBNode>> result=new ArrayList<>();
         for(List<DBNode>c:clusters){
@@ -85,22 +98,14 @@ public class DBSCAN {
         return result;
     }
 
-    public double findEpsilon(int k) {  // generally, k equal to minPts
-        List<Double> distances = new ArrayList<>();
-
-        for (DBNode point : points) {
-            List<Double> pointDistances = new ArrayList<>();
-            for (DBNode other : points) {
-                if (point != other) {
-                    pointDistances.add(Distance.squaredDistanceHighDimension(point.getCoordinates(),other.getCoordinates()));
-                }
-            }
-            Collections.sort(pointDistances);
-            distances.add(pointDistances.get(k - 1));
-        }
-
+    /**
+     * to find the k distance for each node and then, find the epsilon between those node
+     * @param k generally, k equal to minPts
+     */
+    public double findEpsilon(int k) {
+        List<List<Double>> coords=points.stream().map(MultidimensionalNode::getCoordinates).collect(Collectors.toList());
+        List<Double> distances = Distance.kDistance(coords,k);
         distances.sort(Comparator.reverseOrder());
-        System.out.println("dis-array: "+distances);
         double maxDiff = 0;
         int elbowIndex = 0;
         for (int i = 1; i < distances.size(); i++) {
@@ -113,4 +118,41 @@ public class DBSCAN {
         return distances.get(elbowIndex);
     }
 
+    public static void main(String[] args) {
+        List<DBNode> points = new ArrayList<>();
+        points.add(new DBNode(List.of(426d,1400d)));
+        points.add(new DBNode(List.of(430d, 1402d)));
+        points.add(new DBNode(List.of(428d, 1407d)));
+        points.add(new DBNode(List.of(423d,1500d)));
+        points.add(new DBNode(List.of(426d, 1402d)));
+        points.add(new DBNode(List.of(425d, 1407d)));
+        points.add(new DBNode(List.of(525d, 1202d)));
+        points.add(new DBNode(List.of(527d, 1203d)));
+        points.add(new DBNode(List.of(529d, 1207d)));
+        points.add(new DBNode(List.of(528d, 1203d)));
+        points.add(new DBNode(List.of(529d, 1207d)));
+        points.add(new DBNode(List.of(325d, 1600d)));
+        points.add(new DBNode(List.of(328d, 1570d)));
+        points.add(new DBNode(List.of(327d, 1573d)));
+        points.add(new DBNode(List.of(330d, 1603d)));
+        points.add(new DBNode(List.of(323d, 1550d)));
+        DBSCAN dbscan = new DBSCAN(points);
+        int minPts = 3;
+        double eps = dbscan.findEpsilon(minPts);
+        List<DBNode>polyLine=new ArrayList<>(); //nodes not in cluster
+        polyLine.add(new DBNode(List.of(420d, 1390d)));
+        polyLine.add(new DBNode(List.of(426d, 1410d)));
+        polyLine.add(new DBNode(List.of(430d, 1500d)));
+        polyLine.add(new DBNode(List.of(428d, 1000d)));
+        List<List<DBNode>> clusters = dbscan.fit(eps, minPts,true);
+        int i=1;
+        List<DBNode>hull=clusters.get(0);
+        boolean isCross=ConvexHull.doesPolylineIntersectHull(polyLine,hull);
+        System.out.println(isCross);
+        for (List<DBNode> cluster : clusters) {
+            System.out.println("Cluster: "+i);
+            System.out.println(cluster);
+            i++;
+        }
+    }
 }
